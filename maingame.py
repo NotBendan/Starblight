@@ -175,6 +175,16 @@ class MyGame(arcade.Window):
             self.add_spawner(500, "shuttle2", 3)
         if self.background_start_x == 850:
             self.add_spawner(350, "starfighter")
+        if self.background_start_x == 750:
+            self.add_spawner(25, "turret", 2, 3)
+        if self.background_start_x == 700:
+            self.add_spawner(100, "shuttle2-r", 2)
+        if self.background_start_x == 600:
+            self.add_spawner(200, "pod", 3)
+            self.add_spawner(400, "pod", 3)
+
+        if self.background_start_x == 400:
+            self.add_spawner(350, "starfighter", 3)
 
     def on_update(self, delta_time):
 
