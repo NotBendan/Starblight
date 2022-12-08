@@ -70,7 +70,6 @@ class MyGame(arcade.Window):
 
         self.background = arcade.load_texture("./images/far-buildings-long.png")
         self.background_start_x = 2000
-        self.enemy_buffer = 0
         self.current_state = GAME_INTRO
         arcade.play_sound(self.background_music, .8, 0, True)
 
@@ -109,13 +108,13 @@ class MyGame(arcade.Window):
                 self.current_state = GAME_RUNNING
         if self.current_state == GAME_RUNNING:
             if key == arcade.key.UP:
-                self.player_sprite.change_y = MOVEMENT_SPEED
+                self.player_sprite.change_y = MOVEMENT_SPEED * speed_scale
             elif key == arcade.key.DOWN:
-                self.player_sprite.change_y = -MOVEMENT_SPEED
+                self.player_sprite.change_y = -MOVEMENT_SPEED * speed_scale
             elif key == arcade.key.LEFT:
-                self.player_sprite.change_x = -MOVEMENT_SPEED
+                self.player_sprite.change_x = -MOVEMENT_SPEED * speed_scale
             elif key == arcade.key.RIGHT:
-                self.player_sprite.change_x = MOVEMENT_SPEED
+                self.player_sprite.change_x = MOVEMENT_SPEED * speed_scale
             elif key == arcade.key.SPACE:
                 laser = Laser(":resources:images/space_shooter/laserBlue01.png",
                               self.player_sprite.center_x, self.player_sprite.center_y, 0)
@@ -143,7 +142,7 @@ class MyGame(arcade.Window):
             return None
         if self.background_start_x <= 0:
             self.background_start_x = 0
-        if self.background_start_x <= 1100:
+        elif self.background_start_x <= 1100:
             self.background_start_x = 1100
         else:
             self.background_start_x = 2000
@@ -161,10 +160,10 @@ class MyGame(arcade.Window):
     def add_enemies(self):
         # Adds enemies when the screen scrolls to them
 
-        # if speed_scale != 1:
-        #     temp_background_position = round(self.background_start_x, -1)
-        # else:
-        temp_background_position = self.background_start_x
+        if speed_scale != 1:
+            temp_background_position = round(self.background_start_x, -1)
+        else:
+            temp_background_position = self.background_start_x
         # Added to allow enemies to spawn with a decimal background position
         # Needed if speed_scale is a non-integer
 
@@ -211,6 +210,14 @@ class MyGame(arcade.Window):
         if temp_background_position == -100:
             self.add_spawner(450, "shuttle2", 3)
             self.add_spawner(150, "shuttle2-r", 3)
+        if temp_background_position == -200:
+            self.add_spawner(325, "starfighter")
+        if temp_background_position == -250:
+            self.add_spawner(25, "turret", 4, 1.1)
+        if temp_background_position == -350:
+            self.add_spawner(125, "starfighter", 3, 0.5)
+        if temp_background_position == -500:
+            self.add_spawner(300, "pod", 4)
 
     def on_update(self, delta_time):
         if self.current_state == GAME_RUNNING:
@@ -218,7 +225,7 @@ class MyGame(arcade.Window):
             if self.background_start_x > -1200:
                 self.background_start_x -= BACKGROUND_SPEED * speed_scale
             elif self.background_start_x < -1200:
-                self.background_start_x = 1200
+                self.background_start_x = -1200
             self.add_enemies()
 
         self.player_sprite.update()
@@ -233,20 +240,20 @@ class MyGame(arcade.Window):
                     self.enemy_list.append(enemy)
 
         for laser in self.laser_list:
-            laser.change_x = LASER_SPEED
+            laser.change_x = LASER_SPEED * speed_scale
             if laser.center_x >= 900:
                 self.laser_list.remove(laser)
 
         for laser in self.enemy_laser_list:
             if laser.angle == 45:
-                laser.change_x = -ENEMY_LASER_SPEED // 2 - 1
-                laser.change_y = ENEMY_LASER_SPEED // 2
+                laser.change_x = (-ENEMY_LASER_SPEED // 2 - 1) * speed_scale
+                laser.change_y = (ENEMY_LASER_SPEED // 2) * speed_scale
             if laser.angle == 135:
-                laser.change_x = -ENEMY_LASER_SPEED // 2 - 1
-                laser.change_y = -ENEMY_LASER_SPEED // 2
+                laser.change_x = (-ENEMY_LASER_SPEED // 2 - 1) * speed_scale
+                laser.change_y = (-ENEMY_LASER_SPEED // 2) * speed_scale
             if laser.angle == 90:
-                laser.change_x = -ENEMY_LASER_SPEED
-            if laser.center_x >= 900 or laser.center_y >= 900:
+                laser.change_x = -ENEMY_LASER_SPEED * speed_scale
+            if laser.center_x >= 900 or laser.center_y >= 700 or laser.center_y <= -100:
                 self.enemy_laser_list.remove(laser)
             if laser.collides_with_sprite(self.player_sprite):
                 self.kill_player()
