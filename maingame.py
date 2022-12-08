@@ -139,7 +139,10 @@ class MyGame(arcade.Window):
         if self.player_lives < 1:
             self.current_state = GAME_OVER
             return None
-        self.background_start_x = 2000
+        if self.background_start_x <= 1100:
+            self.background_start_x = 1100
+        else:
+            self.background_start_x = 2000
         self.player_sprite.center_x = 100
         self.player_sprite.center_y = 300
     
@@ -152,39 +155,44 @@ class MyGame(arcade.Window):
 
     def add_enemies(self):
         # Adds enemies when the screen scrolls to them
-        if self.background_start_x == 1900:
+        temp_background_position = round(self.background_start_x)
+        if temp_background_position == 1900:
             self.add_spawner(500, "pod", 4)
-        if self.background_start_x == 1800:
+        if temp_background_position == 1800:
             self.add_spawner(100, "pod", 4)
-        if self.background_start_x == 1750:
+        if temp_background_position == 1750:
             self.add_spawner(25, "turret", 2, 2)
-        if self.background_start_x == 1600:
+        if temp_background_position == 1600:
             self.add_spawner(300, "pod", 2)
 
-        if self.background_start_x == 1450:
+        if temp_background_position == 1450:
             self.add_spawner(575, "turret-r")
-        if self.background_start_x == 1350:
+        if temp_background_position == 1350:
             self.add_spawner(450, "shuttle1", 3)
-        if self.background_start_x == 1200:
+        if temp_background_position == 1200:
             self.add_spawner(250, "pod", 5)
-        if self.background_start_x == 1150:
+        if temp_background_position == 1150:
             self.add_spawner(100, "shuttle1-r", 2)
-        if self.background_start_x == 1050:
+        if temp_background_position == 1050:
             self.add_spawner(575, "turret-r", 3, 1.5)
-        if self.background_start_x == 950:
+        if temp_background_position == 950:
             self.add_spawner(500, "shuttle2", 3)
-        if self.background_start_x == 850:
+        if temp_background_position == 850:
             self.add_spawner(350, "starfighter")
-        if self.background_start_x == 750:
+        if temp_background_position == 750:
             self.add_spawner(25, "turret", 2, 3)
-        if self.background_start_x == 700:
+        if temp_background_position == 700:
             self.add_spawner(100, "shuttle2-r", 2)
-        if self.background_start_x == 600:
+        if temp_background_position == 600:
             self.add_spawner(200, "pod", 3)
             self.add_spawner(400, "pod", 3)
 
-        if self.background_start_x == 400:
-            self.add_spawner(350, "starfighter", 3)
+        if temp_background_position == 400:
+            self.add_spawner(350, "starfighter", 3, 0.5)
+        if temp_background_position == 250:
+            self.add_spawner(500, "pod", 2)
+        if temp_background_position == 200:
+            self.add_spawner(575, "turret-r", 2, 1.1)
 
     def on_update(self, delta_time):
 

@@ -84,7 +84,7 @@ class Enemy(arcade.Sprite):
 
     def update(self):
         self.center_x += -1 * speed_scale
-        self.counter += 1
+        self.counter += 1 * speed_scale
         if self.center_x < -100:
             self.kill()
         if self.enemy_type == "pod":
@@ -95,29 +95,29 @@ class Enemy(arcade.Sprite):
                 self.center_x += -3 * speed_scale
             elif 29 < self.counter % 120 < 60:
                 if self.enemy_type == "shuttle1-r":
-                    self.center_y += 4
+                    self.center_y += 4 * speed_scale
                 else:
-                    self.center_y += -4
+                    self.center_y += -4 * speed_scale
             elif 89 < self.counter % 120 < 120:
                 if self.enemy_type == "shuttle1-r":
-                    self.center_y += -4
+                    self.center_y += -4 * speed_scale
                 else:
-                    self.center_y += 4
+                    self.center_y += 4 * speed_scale
         elif self.enemy_type == "shuttle2" or self.enemy_type == "shuttle2-r":
             if -1 < self.counter % 100 < 40:
                 self.center_x += -5 * speed_scale
             elif 39 < self.counter % 100 < 100:
                 if self.enemy_type == "shuttle2-r":
-                    self.center_y += 1.5
+                    self.center_y += 1.5 * speed_scale
                 else:
-                    self.center_y += -1.5
-                self.center_x += 2
+                    self.center_y += -1.5 * speed_scale
+                self.center_x += 2 * speed_scale
         elif self.enemy_type == "starfighter":
             self.center_x += -3 * speed_scale
             if -1 < self.counter % 60 < 30:
-                self.center_y += -3
+                self.center_y += -3 * speed_scale
             if 29 < self.counter % 60 < 60:
-                self.center_y += 3
+                self.center_y += 3 * speed_scale
 
 
 class EnemySpawner(arcade.Sprite):
