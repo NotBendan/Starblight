@@ -25,11 +25,11 @@ class Enemy(arcade.Sprite):
             super().__init__(":resources:images/tiles/leverRight.png", 0.5)
             self.angle = 180
             self.pause_time = 60 * speed_scale
-        elif enemy_type == "shuttle1" or enemy_type == "shuttle1-r":
+        elif enemy_type == "shuttle1" or enemy_type == "shuttle1-r":  # "-r" stands for reverse
             super().__init__(":resources:images/space_shooter/playerShip1_blue.png", 0.65)
             self.angle = 90
             self.pause_time = 40 * speed_scale
-        elif enemy_type == "shuttle2" or enemy_type == "shuttle2-r":
+        elif enemy_type == "shuttle2" or enemy_type == "shuttle2-r":  # "-r" stands for reverse
             super().__init__(":resources:images/space_shooter/playerShip1_green.png", 0.65)
             self.angle = 90
             self.pause_time = 40 * speed_scale

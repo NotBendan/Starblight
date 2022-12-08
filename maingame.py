@@ -44,6 +44,7 @@ class MyGame(arcade.Window):
 
         self.set_mouse_visible(True)
         self.current_state = None
+        self.enemy_buffer = None
 
         arcade.set_background_color(arcade.color.BLACK)
 
@@ -69,6 +70,7 @@ class MyGame(arcade.Window):
 
         self.background = arcade.load_texture("./images/far-buildings-long.png")
         self.background_start_x = 2000
+        self.enemy_buffer = 0
         self.current_state = GAME_INTRO
         arcade.play_sound(self.background_music, .8, 0, True)
 
@@ -139,6 +141,8 @@ class MyGame(arcade.Window):
         if self.player_lives < 1:
             self.current_state = GAME_OVER
             return None
+        if self.background_start_x <= 0:
+            self.background_start_x = 0
         if self.background_start_x <= 1100:
             self.background_start_x = 1100
         else:
@@ -149,13 +153,21 @@ class MyGame(arcade.Window):
     def add_spawner(self, y_position: float, enemy_type: str, enemy_count: int = 1, distance_multiplier: float = 1):
         temp_spawner = EnemySpawner(y_position, enemy_type, enemy_count, distance_multiplier)
         for spawner in self.spawner_list:
-            if temp_spawner == spawner:
+            if temp_spawner.center_y == spawner.center_y and temp_spawner.enemy_type == spawner.enemy_type and \
+                    temp_spawner.enemy_count == spawner.enemy_count and temp_spawner.multiplier == spawner.multiplier:
                 return None
         self.spawner_list.append(temp_spawner)
 
     def add_enemies(self):
         # Adds enemies when the screen scrolls to them
-        temp_background_position = round(self.background_start_x)
+
+        # if speed_scale != 1:
+        #     temp_background_position = round(self.background_start_x, -1)
+        # else:
+        temp_background_position = self.background_start_x
+        # Added to allow enemies to spawn with a decimal background position
+        # Needed if speed_scale is a non-integer
+
         if temp_background_position == 1900:
             self.add_spawner(500, "pod", 4)
         if temp_background_position == 1800:
@@ -174,7 +186,7 @@ class MyGame(arcade.Window):
         if temp_background_position == 1150:
             self.add_spawner(100, "shuttle1-r", 2)
         if temp_background_position == 1050:
-            self.add_spawner(575, "turret-r", 3, 1.5)
+            self.add_spawner(575, "turret-r", 3, 1.1)
         if temp_background_position == 950:
             self.add_spawner(500, "shuttle2", 3)
         if temp_background_position == 850:
@@ -193,9 +205,14 @@ class MyGame(arcade.Window):
             self.add_spawner(500, "pod", 2)
         if temp_background_position == 200:
             self.add_spawner(575, "turret-r", 2, 1.1)
+        if temp_background_position == 100:
+            self.add_spawner(350, "shuttle1", 2)
+
+        if temp_background_position == -100:
+            self.add_spawner(450, "shuttle2", 3)
+            self.add_spawner(150, "shuttle2-r", 3)
 
     def on_update(self, delta_time):
-
         if self.current_state == GAME_RUNNING:
             # Scrolling Background
             if self.background_start_x > -1200:
@@ -235,7 +252,7 @@ class MyGame(arcade.Window):
                 self.kill_player()
 
         for enemy in self.enemy_list:
-            if enemy.counter == enemy.pause_time:
+            if round(enemy.counter) == enemy.pause_time:
                 enemy_laser = enemy.fire_laser()
                 self.enemy_laser_list.append(enemy_laser)
 
