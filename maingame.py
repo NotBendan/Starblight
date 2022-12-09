@@ -13,7 +13,8 @@ SCREEN_TITLE = "Starblight"
 
 GAME_INTRO = 1
 GAME_RUNNING = 2
-GAME_OVER = 3
+BOSS_FIGHT = 3
+GAME_OVER = 4
 
 
 class MyGame(arcade.Window):
@@ -37,6 +38,8 @@ class MyGame(arcade.Window):
         self.background = None
         self.background_start_x = None
         self.background_start_y = None
+        self.boss_sprite = None
+        self.boss_health = None
 
         self.enemy_explosion = None
         self.enemy_laser_sound = None
@@ -44,7 +47,6 @@ class MyGame(arcade.Window):
 
         self.set_mouse_visible(True)
         self.current_state = None
-        self.enemy_buffer = None
 
         arcade.set_background_color(arcade.color.BLACK)
 
@@ -53,7 +55,6 @@ class MyGame(arcade.Window):
         self.enemy_list = arcade.SpriteList()
         self.enemy_laser_list = arcade.SpriteList()
         self.spawner_list = arcade.SpriteList()
-        self.score = 0
 
         img = ":resources:images/space_shooter/playerShip3_orange.png"
         self.player_sprite = arcade.Sprite(img, SPRITE_SCALING_PLAYER)
@@ -63,6 +64,11 @@ class MyGame(arcade.Window):
         self.player_laser_sound = arcade.load_sound(":resources:sounds/fall3.wav")
         self.player_explosion = arcade.load_sound(":resources:sounds/explosion1.wav")
         self.player_lives = 3
+
+        self.boss_sprite = arcade.Sprite(":resources:images/topdown_tanks/tankBody_darkLarge.png", 3)
+        self.boss_sprite.center_y = 300
+        self.boss_sprite.center_x = 900
+        self.boss_sprite.angle = 90
 
         self.enemy_explosion = arcade.load_sound(":resources:sounds/explosion2.wav")
         self.enemy_laser_sound = arcade.load_sound(":resources:sounds/laser2.wav")
@@ -86,7 +92,7 @@ class MyGame(arcade.Window):
                              arcade.color.WHITE, 25)
             arcade.draw_text("Press Enter to continue.", SCREEN_WIDTH // 4 + 10, (SCREEN_HEIGHT // 2 - 60),
                              arcade.color.WHITE, 25)
-        if self.current_state == GAME_RUNNING:
+        if self.current_state == GAME_RUNNING or self.current_state == BOSS_FIGHT:
             self.player_sprite.draw()
             self.laser_list.draw()
             self.enemy_laser_list.draw()
@@ -96,6 +102,8 @@ class MyGame(arcade.Window):
             life_sprite.center_x, life_sprite.center_y = 25, 25
             life_sprite.draw()
             arcade.draw_text(f"x {self.player_lives}", 55, 18, arcade.color.WHITE, 20)
+            if self.current_state == BOSS_FIGHT:
+                self.boss_sprite.draw()
         if self.current_state == GAME_OVER:
             arcade.draw_text("Game Over", 225, 300, arcade.color.WHITE, 50)
 
@@ -106,7 +114,7 @@ class MyGame(arcade.Window):
         if self.current_state == GAME_INTRO:
             if key == arcade.key.ENTER:
                 self.current_state = GAME_RUNNING
-        if self.current_state == GAME_RUNNING:
+        if self.current_state == GAME_RUNNING or self.current_state == BOSS_FIGHT:
             if key == arcade.key.UP:
                 self.player_sprite.change_y = MOVEMENT_SPEED * speed_scale
             elif key == arcade.key.DOWN:
@@ -226,6 +234,10 @@ class MyGame(arcade.Window):
                 self.background_start_x -= BACKGROUND_SPEED * speed_scale
             elif self.background_start_x < -1200:
                 self.background_start_x = -1200
+            elif self.background_start_x == -1200:
+                self.boss_health = 30
+                self.current_state = BOSS_FIGHT
+            # Enemy spawning
             self.add_enemies()
 
         self.player_sprite.update()
@@ -233,17 +245,22 @@ class MyGame(arcade.Window):
         self.laser_list.update()
         self.enemy_laser_list.update()
         self.spawner_list.update()
+        if self.current_state == BOSS_FIGHT:
+            self.boss_sprite.update()
 
+        # Adding enemies from spawners
         for spawner in self.spawner_list:
             for enemy in spawner.temp_list:
                 if enemy not in self.enemy_list:
                     self.enemy_list.append(enemy)
 
+        # Moving lasers / removing them when they move off-screen
         for laser in self.laser_list:
             laser.change_x = LASER_SPEED * speed_scale
             if laser.center_x >= 900:
                 self.laser_list.remove(laser)
 
+        # Moving enemy lasers / removing them when they move off-screen
         for laser in self.enemy_laser_list:
             if laser.angle == 45:
                 laser.change_x = (-ENEMY_LASER_SPEED // 2 - 1) * speed_scale
@@ -259,15 +276,18 @@ class MyGame(arcade.Window):
                 self.kill_player()
 
         for enemy in self.enemy_list:
+            # Enemies firing lasers
             if round(enemy.counter) == enemy.pause_time:
-                enemy_laser = enemy.fire_laser()
-                self.enemy_laser_list.append(enemy_laser)
+                self.enemy_laser_list.append(enemy.fire_laser())
 
+            # Checking for player collision with enemies
             if enemy.collides_with_sprite(self.player_sprite):
                 self.kill_player()
 
             for laser in self.laser_list:
                 if laser.collides_with_sprite(enemy):
+                    old_score = self.score % 250
+                    # Scoring system
                     if enemy.enemy_type == "starfighter":
                         self.score += 3
                     elif enemy.enemy_type == "shuttle1" or enemy.enemy_type == "shuttle1-r" or \
@@ -278,6 +298,8 @@ class MyGame(arcade.Window):
                     self.laser_list.remove(laser)
                     enemy.kill()
                     arcade.play_sound(self.enemy_explosion)
+                    if self.score % 250 < old_score:
+                        self.player_lives += 1
 
 
 def main():

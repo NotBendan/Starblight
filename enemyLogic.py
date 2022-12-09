@@ -20,23 +20,23 @@ class Enemy(arcade.Sprite):
             self.pause_time = None
         elif enemy_type == "turret":
             super().__init__(":resources:images/tiles/leverLeft.png", 0.5)
-            self.pause_time = 60 * speed_scale
+            self.pause_time = round(60 / speed_scale)
         elif enemy_type == "turret-r":  # "-r" stands for reverse
             super().__init__(":resources:images/tiles/leverRight.png", 0.5)
             self.angle = 180
-            self.pause_time = 60 * speed_scale
+            self.pause_time = round(60 / speed_scale)
         elif enemy_type == "shuttle1" or enemy_type == "shuttle1-r":  # "-r" stands for reverse
             super().__init__(":resources:images/space_shooter/playerShip1_blue.png", 0.65)
             self.angle = 90
-            self.pause_time = 40 * speed_scale
+            self.pause_time = round(40 / speed_scale)
         elif enemy_type == "shuttle2" or enemy_type == "shuttle2-r":  # "-r" stands for reverse
             super().__init__(":resources:images/space_shooter/playerShip1_green.png", 0.65)
             self.angle = 90
-            self.pause_time = 40 * speed_scale
+            self.pause_time = round(40 / speed_scale)
         elif enemy_type == "starfighter":
             super().__init__(":resources:images/space_shooter/playerShip2_orange.png", 0.65)
             self.angle = 90
-            self.pause_time = 30 * speed_scale
+            self.pause_time = round(30 / speed_scale)
 
         self.center_x = center_x
         self.center_y = center_y
@@ -51,34 +51,34 @@ class Enemy(arcade.Sprite):
                           self.center_x - 15, self.center_y, 45)
             # Calculates the time between laser shots
             if 10 // speed_scale < 2:
-                self.pause_time = round(2 // 4 * 60) + self.counter
+                self.pause_time = round((2 // 4 * 60) + self.counter)
             else:
-                self.pause_time = round(random.randrange(2, round(10 * speed_scale)) / 4) * 60 + self.counter
+                self.pause_time = round((random.randrange(2, round(10 / speed_scale)) / 4) * 60 + self.counter)
 
         elif self.enemy_type == "turret-r":
             laser = Laser(":resources:images/space_shooter/laserRed01.png",
                           self.center_x - 15, self.center_y, 135)
             if 10 // speed_scale < 2:
-                self.pause_time = round(2 // 4 * 60) + self.counter
+                self.pause_time = round((2 // 4 * 60) + self.counter)
             else:
-                self.pause_time = int((random.randrange(2, round(10 * speed_scale)) / 4) * 60) + self.counter
+                self.pause_time = round(((random.randrange(2, round(10 / speed_scale)) / 4) * 60) + self.counter)
 
         elif self.enemy_type == "shuttle1" or self.enemy_type == "shuttle1-r" or \
                 self.enemy_type == "shuttle2" or self.enemy_type == "shuttle2-r":
             laser = Laser(":resources:images/space_shooter/laserRed01.png",
                           self.center_x, self.center_y, 90)
             if 8 // speed_scale < 3:
-                self.pause_time = round(2 // 4 * 60) + self.counter
+                self.pause_time = round((2 // 4 * 60) + self.counter)
             else:
-                self.pause_time = int((random.randrange(3, round(8 * speed_scale)) / 4) * 60) + self.counter
+                self.pause_time = round(((random.randrange(3, round(8 / speed_scale)) / 4) * 60) + self.counter)
 
         elif self.enemy_type == "starfighter":
             laser = Laser(":resources:images/space_shooter/laserRed01.png",
                           self.center_x, self.center_y, 90)
-            if 10 // speed_scale < 2:
-                self.pause_time = round(2 // 4 * 60) + self.counter
+            if 6 // speed_scale < 2:
+                self.pause_time = round((2 // 4 * 60) + self.counter)
             else:
-                self.pause_time = int((random.randrange(2, round(6 * speed_scale)) / 4) * 60) + self.counter
+                self.pause_time = round(((random.randrange(2, round(6 / speed_scale)) / 4) * 60) + self.counter)
         arcade.play_sound(self.laser_sound, 0.5)
         return laser
 
