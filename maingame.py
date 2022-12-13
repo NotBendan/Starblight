@@ -163,6 +163,7 @@ class MyGame(arcade.Window):
             self.background_start_x = 2000
         self.player_sprite.center_x = 100
         self.player_sprite.center_y = 300
+        self.current_state = GAME_RUNNING
     
     def add_spawner(self, y_position: float, enemy_type: str, enemy_count: int = 1, distance_multiplier: float = 1):
         temp_spawner = EnemySpawner(y_position, enemy_type, enemy_count, distance_multiplier, self.speed_scale)
@@ -242,10 +243,11 @@ class MyGame(arcade.Window):
             elif self.background_start_x < -1200:
                 self.background_start_x = -1200
             elif self.background_start_x == -1200:
-                self.boss_health = 30
-                self.boss_timer = 150
+                self.boss_health = 100
+                self.boss_timer = 100
                 self.boss_sprite.center_x = 900
                 self.boss_sprite.center_y = 300
+                self.boss_sprite.fire_timer = 120
                 self.current_state = BOSS_FIGHT
             # Enemy spawning
             self.add_enemies()
@@ -265,11 +267,23 @@ class MyGame(arcade.Window):
                 self.boss_sprite.center_x = 700
             elif self.boss_sprite.center_x == 700:
                 self.boss_sprite.center_x = 700
-                self.boss_timer += 1
+                self.boss_timer += 1 * self.speed_scale
                 if self.boss_timer % 400 < 200:
                     self.boss_sprite.center_y += 2
                 elif 199 < self.boss_timer % 400 < 400:
                     self.boss_sprite.center_y -= 2
+                temp_boss_timer = round(self.boss_timer)
+                if temp_boss_timer == self.boss_sprite.fire_timer:
+                    for position in range(1, 4):
+                        temp_y_position = self.boss_sprite.center_y + (50 * position - 100)
+                        self.enemy_laser_list.append(Laser(":resources:images/space_shooter/laserRed01.png",
+                                                     self.boss_sprite.center_x - 15, temp_y_position, 90))
+                        arcade.play_sound(self.enemy_laser_sound, 0.5)
+                    if 6 // self.speed_scale < 3:
+                        self.boss_sprite.fire_timer = round((3 // 4 * 60) + self.boss_timer)
+                    else:
+                        self.boss_sprite.fire_timer = round(
+                            (random.randrange(3, round(6 / self.speed_scale)) / 4) * 60 + self.boss_timer)
                 for laser in self.laser_list:
                     if laser.collides_with_sprite(self.boss_sprite):
                         self.boss_health -= 1
@@ -331,6 +345,7 @@ class MyGame(arcade.Window):
                     self.laser_list.remove(laser)
                     enemy.kill()
                     arcade.play_sound(self.enemy_explosion)
+                    # Extra lives
                     if self.score % 250 < old_score:
                         self.player_lives += 1
 
