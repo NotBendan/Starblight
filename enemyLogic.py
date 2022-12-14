@@ -42,7 +42,7 @@ class Enemy(arcade.Sprite):
         self.center_x = center_x
         self.center_y = center_y
         self.enemy_type = enemy_type
-        self.counter = 0
+        self.frame_counter = 0
         self.laser_sound = arcade.load_sound(":resources:sounds/laser2.wav")
 
     def fire_laser(self):
@@ -50,64 +50,75 @@ class Enemy(arcade.Sprite):
         if self.enemy_type == "turret":
             laser = Laser(":resources:images/space_shooter/laserRed01.png",
                           self.center_x - 15, self.center_y, 45)
-            # Calculates the time between laser shots
+            # Calculating the time between laser shots
             if 10 // self.speed_scale < 2:
-                self.pause_time = round((2 // 4 * 60) + self.counter)
+                # Checks to see if speed scaling pushed the maximum to less than the minimum
+                self.pause_time = round((2 // 4 * 60) + self.frame_counter)
             else:
-                self.pause_time = round((random.randrange(2, round(10 / self.speed_scale)) / 4) * 60 + self.counter)
+                self.pause_time = round((random.randrange(2, round(10 / self.speed_scale)) / 4) * 60 +
+                                        self.frame_counter)
 
         elif self.enemy_type == "turret-r":
             laser = Laser(":resources:images/space_shooter/laserRed01.png",
                           self.center_x - 15, self.center_y, 135)
+            # Calculating the time between laser shots
             if 10 // self.speed_scale < 2:
-                self.pause_time = round((2 // 4 * 60) + self.counter)
+                # Checks to see if speed scaling pushed the maximum to less than the minimum
+                self.pause_time = round((2 // 4 * 60) + self.frame_counter)
             else:
-                self.pause_time = round(((random.randrange(2, round(10 / self.speed_scale)) / 4) * 60) + self.counter)
+                self.pause_time = round(((random.randrange(2, round(10 / self.speed_scale)) / 4) * 60) +
+                                        self.frame_counter)
 
         elif self.enemy_type == "shuttle1" or self.enemy_type == "shuttle1-r" or \
                 self.enemy_type == "shuttle2" or self.enemy_type == "shuttle2-r":
             laser = Laser(":resources:images/space_shooter/laserRed01.png",
                           self.center_x, self.center_y, 90)
+            # Calculating the time between laser shots
             if 8 // self.speed_scale < 3:
-                self.pause_time = round((2 // 4 * 60) + self.counter)
+                # Checks to see if speed scaling pushed the maximum to less than the minimum
+                self.pause_time = round((2 // 4 * 60) + self.frame_counter)
             else:
-                self.pause_time = round(((random.randrange(3, round(8 / self.speed_scale)) / 4) * 60) + self.counter)
+                self.pause_time = round(((random.randrange(3, round(8 / self.speed_scale)) / 4) * 60) +
+                                        self.frame_counter)
 
         elif self.enemy_type == "starfighter":
             laser = Laser(":resources:images/space_shooter/laserRed01.png",
                           self.center_x, self.center_y, 90)
+            # Calculating the time between laser shots
             if 6 // self.speed_scale < 2:
-                self.pause_time = round((2 // 4 * 60) + self.counter)
+                # Checks to see if speed scaling pushed the maximum to less than the minimum
+                self.pause_time = round((2 // 4 * 60) + self.frame_counter)
             else:
-                self.pause_time = round(((random.randrange(2, round(6 / self.speed_scale)) / 4) * 60) + self.counter)
+                self.pause_time = round(((random.randrange(2, round(6 / self.speed_scale)) / 4) * 60) +
+                                        self.frame_counter)
         arcade.play_sound(self.laser_sound, 0.5)
         return laser
 
     def update(self):
         self.center_x += -1 * self.speed_scale
-        self.counter += 1 * self.speed_scale
+        self.frame_counter += 1 * self.speed_scale
         if self.center_x < -100:
             self.kill()
         if self.enemy_type == "pod":
-            if -1 < self.counter % 100 < 20:
+            if -1 < self.frame_counter % 100 < 20:
                 self.center_x += -3 * self.speed_scale
         elif self.enemy_type == "shuttle1" or self.enemy_type == "shuttle1-r":
-            if -1 < self.counter % 120 < 30 or 59 < self.counter % 120 < 90:
+            if -1 < self.frame_counter % 120 < 30 or 59 < self.frame_counter % 120 < 90:
                 self.center_x += -3 * self.speed_scale
-            elif 29 < self.counter % 120 < 60:
+            elif 29 < self.frame_counter % 120 < 60:
                 if self.enemy_type == "shuttle1-r":
                     self.center_y += 4 * self.speed_scale
                 else:
                     self.center_y += -4 * self.speed_scale
-            elif 89 < self.counter % 120 < 120:
+            elif 89 < self.frame_counter % 120 < 120:
                 if self.enemy_type == "shuttle1-r":
                     self.center_y += -4 * self.speed_scale
                 else:
                     self.center_y += 4 * self.speed_scale
         elif self.enemy_type == "shuttle2" or self.enemy_type == "shuttle2-r":
-            if -1 < self.counter % 100 < 40:
+            if -1 < self.frame_counter % 100 < 40:
                 self.center_x += -5 * self.speed_scale
-            elif 39 < self.counter % 100 < 100:
+            elif 39 < self.frame_counter % 100 < 100:
                 if self.enemy_type == "shuttle2-r":
                     self.center_y += 1.5 * self.speed_scale
                 else:
@@ -115,9 +126,9 @@ class Enemy(arcade.Sprite):
                 self.center_x += 2 * self.speed_scale
         elif self.enemy_type == "starfighter":
             self.center_x += -3 * self.speed_scale
-            if -1 < self.counter % 60 < 30:
+            if -1 < self.frame_counter % 60 < 30:
                 self.center_y += -3 * self.speed_scale
-            if 29 < self.counter % 60 < 60:
+            if 29 < self.frame_counter % 60 < 60:
                 self.center_y += 3 * self.speed_scale
 
 

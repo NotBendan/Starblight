@@ -105,6 +105,7 @@ class MyGame(arcade.Window):
             self.enemy_laser_list.draw()
             self.enemy_list.draw()
             arcade.draw_text(f"Score: {self.score}", 10, 575, arcade.color.WHITE, 14)
+            # Drawing the life counter
             life_sprite = arcade.Sprite(":resources:images/space_shooter/playerShip3_orange.png", .4)
             life_sprite.center_x, life_sprite.center_y = 25, 25
             life_sprite.draw()
@@ -148,6 +149,8 @@ class MyGame(arcade.Window):
     def kill_player(self):
         self.player_lives -= 1
         arcade.play_sound(self.player_explosion)
+
+        # Resetting the game after the player dies
         self.laser_list = arcade.SpriteList()
         self.enemy_laser_list = arcade.SpriteList()
         self.enemy_list = arcade.SpriteList()
@@ -155,6 +158,8 @@ class MyGame(arcade.Window):
         if self.player_lives < 1:
             self.current_state = GAME_OVER
             return None
+
+        # Checking to see if the player has passed a check point
         if self.background_start_x <= 0:
             self.background_start_x = 0
         elif self.background_start_x <= 1100:
@@ -167,6 +172,7 @@ class MyGame(arcade.Window):
     
     def add_spawner(self, y_position: float, enemy_type: str, enemy_count: int = 1, distance_multiplier: float = 1):
         temp_spawner = EnemySpawner(y_position, enemy_type, enemy_count, distance_multiplier, self.speed_scale)
+        # Removing duplicate spawners by checking every attribute that can be manually set
         for spawner in self.spawner_list:
             if temp_spawner.center_y == spawner.center_y and temp_spawner.enemy_type == spawner.enemy_type and \
                     temp_spawner.enemy_count == spawner.enemy_count and temp_spawner.multiplier == spawner.multiplier:
@@ -235,6 +241,13 @@ class MyGame(arcade.Window):
         if temp_background_position == -500:
             self.add_spawner(300, "pod", 4)
 
+    def increase_score(self, amount: int):
+        old_score = self.score % 250
+        self.score += amount
+        # Every 250 points, the player will earn an extra life
+        if old_score > self.score % 250:
+            self.player_lives += 1
+
     def on_update(self, delta_time):
         if self.current_state == GAME_RUNNING:
             # Scrolling Background
@@ -243,6 +256,7 @@ class MyGame(arcade.Window):
             elif self.background_start_x < -1200:
                 self.background_start_x = -1200
             elif self.background_start_x == -1200:
+                # Initializing boss fight
                 self.boss_health = 100
                 self.boss_timer = 100
                 self.boss_sprite.center_x = 900
@@ -291,6 +305,7 @@ class MyGame(arcade.Window):
                         arcade.play_sound(self.enemy_explosion)
                         # Boss death / game repeat
                         if self.boss_health <= 0:
+                            self.increase_score(50)
                             self.current_state = GAME_RUNNING
                             self.background_start_x = 2000
                             self.speed_scale += .1
@@ -324,30 +339,27 @@ class MyGame(arcade.Window):
 
         for enemy in self.enemy_list:
             # Enemies firing lasers
-            if round(enemy.counter) == enemy.pause_time:
+            if round(enemy.frame_counter) == enemy.pause_time:
                 self.enemy_laser_list.append(enemy.fire_laser())
 
             # Checking for player collision with enemies
             if enemy.collides_with_sprite(self.player_sprite):
                 self.kill_player()
 
+            # Checking for laser collision with enemies
             for laser in self.laser_list:
                 if laser.collides_with_sprite(enemy):
-                    old_score = self.score % 250
                     # Scoring system
                     if enemy.enemy_type == "starfighter":
-                        self.score += 3
+                        self.increase_score(3)
                     elif enemy.enemy_type == "shuttle1" or enemy.enemy_type == "shuttle1-r" or \
                             enemy.enemy_type == "shuttle2" or enemy.enemy_type == "shuttle2-r":
-                        self.score += 2
+                        self.increase_score(2)
                     else:
-                        self.score += 1
+                        self.increase_score(1)
                     self.laser_list.remove(laser)
                     enemy.kill()
                     arcade.play_sound(self.enemy_explosion)
-                    # Extra lives
-                    if self.score % 250 < old_score:
-                        self.player_lives += 1
 
 
 def main():
