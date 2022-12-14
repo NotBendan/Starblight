@@ -287,7 +287,7 @@ class MyGame(arcade.Window):
                 elif 199 < self.boss_timer % 400 < 400:
                     self.boss_sprite.center_y -= 2
                 temp_boss_timer = round(self.boss_timer)
-                if temp_boss_timer == self.boss_sprite.fire_timer:
+                if temp_boss_timer >= self.boss_sprite.fire_timer:
                     for position in range(1, 4):
                         temp_y_position = self.boss_sprite.center_y + (50 * position - 100)
                         self.enemy_laser_list.append(Laser(":resources:images/space_shooter/laserRed01.png",
@@ -339,7 +339,7 @@ class MyGame(arcade.Window):
 
         for enemy in self.enemy_list:
             # Enemies firing lasers
-            if round(enemy.frame_counter) == enemy.pause_time:
+            if round(enemy.frame_counter) >= enemy.pause_time:
                 self.enemy_laser_list.append(enemy.fire_laser())
 
             # Checking for player collision with enemies
