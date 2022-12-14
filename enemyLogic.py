@@ -18,7 +18,8 @@ class Enemy(arcade.Sprite):
         if enemy_type == "pod":
             super().__init__(":resources:images/topdown_tanks/tankBody_green.png", 1.25)
             self.angle = -90
-            self.pause_time = None
+            self.pause_time = 99999999999999999999999999999999999999999999999999999999999999999999
+            # self.pause_time not kept as None to allow for laser firing system to work
         elif enemy_type == "turret":
             super().__init__(":resources:images/tiles/leverLeft.png", 0.5)
             self.pause_time = round(60 / self.speed_scale)
