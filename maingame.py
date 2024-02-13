@@ -338,8 +338,9 @@ class MyGame(arcade.Window):
 
         for enemy in self.enemy_list:
             # Enemies firing lasers
-            if enemy.frame_counter >= enemy.pause_time:
-                self.enemy_laser_list.append(enemy.fire_laser())
+            if enemy.pause_time >= 0:
+                if enemy.frame_counter >= enemy.pause_time:
+                    self.enemy_laser_list.append(enemy.fire_laser())
 
             # Checking for player collision with enemies
             if enemy.collides_with_sprite(self.player_sprite):

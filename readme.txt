@@ -18,5 +18,8 @@ After that, the game restarts, but everything now moves slightly faster. If you 
 
 Credits
 
-Level Design, Programming, and Testing by Jordan Harrington
-Python Arcade, Art, and Music by Paul Vincent Craven
+Stage Design, Programming, and Testing by Jordan "Bendan" Harrington
+
+Art, Sprites, and Music by kenney.nl
+
+Python Arcade by Paul Vincent Craven
