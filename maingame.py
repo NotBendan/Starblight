@@ -1,4 +1,5 @@
 from enemyLogic import *
+from levelData import *
 
 # --- Constants ---
 SPRITE_SCALING_PLAYER = 0.5
@@ -42,6 +43,7 @@ class MyGame(arcade.Window):
         self.boss_sprite = None
         self.boss_health = None
         self.boss_timer = None
+        self.level_enemy_index = 0
 
         self.enemy_explosion = None
         self.enemy_laser_sound = None
@@ -132,8 +134,7 @@ class MyGame(arcade.Window):
             elif key == arcade.key.RIGHT:
                 self.player_sprite.change_x = MOVEMENT_SPEED * self.speed_scale
             elif key == arcade.key.SPACE:
-                laser = Laser(":resources:images/space_shooter/laserBlue01.png",
-                              self.player_sprite.center_x, self.player_sprite.center_y, 0)
+                laser = Laser(self.player_sprite.center_x, self.player_sprite.center_y, 0, ":resources:images/space_shooter/laserBlue01.png")
                 arcade.play_sound(self.player_laser_sound)
                 self.laser_list.append(laser)
 
@@ -155,6 +156,7 @@ class MyGame(arcade.Window):
         self.enemy_laser_list = arcade.SpriteList()
         self.enemy_list = arcade.SpriteList()
         self.spawner_list = arcade.SpriteList()
+        self.level_enemy_index = 0
         if self.player_lives < 1:
             self.current_state = GAME_OVER
             return None
@@ -166,10 +168,15 @@ class MyGame(arcade.Window):
             self.background_start_x = 1100
         else:
             self.background_start_x = 2000
+
+        while LEVEL1[self.level_enemy_index][0] >= self.background_start_x:
+            self.level_enemy_index += 1
+
         self.player_sprite.center_x = 100
         self.player_sprite.center_y = 300
         self.current_state = GAME_RUNNING
-    
+        return None
+
     def add_spawner(self, y_position: float, enemy_type: str, enemy_count: int = 1, distance_multiplier: float = 1):
         temp_spawner = EnemySpawner(y_position, enemy_type, enemy_count, distance_multiplier, self.speed_scale)
         # Removing duplicate spawners by checking every attribute that can be manually set
@@ -178,68 +185,13 @@ class MyGame(arcade.Window):
                     temp_spawner.enemy_count == spawner.enemy_count and temp_spawner.multiplier == spawner.multiplier:
                 return None
         self.spawner_list.append(temp_spawner)
+        return None
 
     def add_enemies(self):
-        # Adds enemies when the screen scrolls to them
-
-        if self.speed_scale != 1:
-            temp_background_position = round(self.background_start_x, -1)
-        else:
-            temp_background_position = self.background_start_x
-        # Added to allow enemies to spawn with a decimal background position
-        # Needed if speed_scale is a non-integer
-
-        if temp_background_position == 1900:
-            self.add_spawner(500, "pod", 4)
-        if temp_background_position == 1800:
-            self.add_spawner(100, "pod", 4)
-        if temp_background_position == 1750:
-            self.add_spawner(25, "turret", 2, 2)
-        if temp_background_position == 1600:
-            self.add_spawner(300, "pod", 2)
-
-        if temp_background_position == 1450:
-            self.add_spawner(575, "turret-r")
-        if temp_background_position == 1350:
-            self.add_spawner(450, "shuttle1", 3)
-        if temp_background_position == 1200:
-            self.add_spawner(250, "pod", 5)
-        if temp_background_position == 1150:
-            self.add_spawner(100, "shuttle1-r", 2)
-        if temp_background_position == 1050:
-            self.add_spawner(575, "turret-r", 3, 1.1)
-        if temp_background_position == 950:
-            self.add_spawner(500, "shuttle2", 3)
-        if temp_background_position == 850:
-            self.add_spawner(350, "starfighter")
-        if temp_background_position == 750:
-            self.add_spawner(25, "turret", 2, 3)
-        if temp_background_position == 700:
-            self.add_spawner(100, "shuttle2-r", 2)
-        if temp_background_position == 600:
-            self.add_spawner(200, "pod", 3)
-            self.add_spawner(400, "pod", 3)
-
-        if temp_background_position == 400:
-            self.add_spawner(350, "starfighter", 3, 0.5)
-        if temp_background_position == 250:
-            self.add_spawner(500, "pod", 2)
-        if temp_background_position == 200:
-            self.add_spawner(575, "turret-r", 2, 1.1)
-        if temp_background_position == 100:
-            self.add_spawner(350, "shuttle1", 2)
-
-        if temp_background_position == -100:
-            self.add_spawner(450, "shuttle2", 3)
-            self.add_spawner(150, "shuttle2-r", 3)
-        if temp_background_position == -200:
-            self.add_spawner(325, "starfighter")
-        if temp_background_position == -250:
-            self.add_spawner(25, "turret", 4, 1.1)
-        if temp_background_position == -350:
-            self.add_spawner(125, "starfighter", 3, 0.5)
-        if temp_background_position == -500:
-            self.add_spawner(300, "pod", 4)
+        while LEVEL1[self.level_enemy_index][0] >= self.background_start_x:
+            self.add_spawner(LEVEL1[self.level_enemy_index][1], LEVEL1[self.level_enemy_index][2],
+                             LEVEL1[self.level_enemy_index][3], LEVEL1[self.level_enemy_index][4])
+            self.level_enemy_index += 1
 
     def increase_score(self, amount: int):
         old_score = self.score % 250
@@ -289,14 +241,13 @@ class MyGame(arcade.Window):
                 if self.boss_timer >= self.boss_sprite.fire_timer:
                     for position in range(1, 4):
                         temp_y_position = self.boss_sprite.center_y + (50 * position - 100)
-                        self.enemy_laser_list.append(Laser(":resources:images/space_shooter/laserRed01.png",
-                                                     self.boss_sprite.center_x - 15, temp_y_position, 90))
+                        self.enemy_laser_list.append(Laser(self.boss_sprite.center_x - 15, temp_y_position, 90))
                         arcade.play_sound(self.enemy_laser_sound, 0.5)
                     if 6 // self.speed_scale < 3:
-                        self.boss_sprite.fire_timer = round((3 // 4 * 60) + self.boss_timer)
+                        self.boss_sprite.fire_timer = round(45 + self.boss_timer)
                     else:
                         self.boss_sprite.fire_timer = round(
-                            (random.randrange(3, round(6 / self.speed_scale)) / 4) * 60 + self.boss_timer)
+                            random.randrange(45, round(90 / self.speed_scale)) + self.boss_timer)
                 for laser in self.laser_list:
                     if laser.collides_with_sprite(self.boss_sprite):
                         self.boss_health -= 1
@@ -308,6 +259,7 @@ class MyGame(arcade.Window):
                             self.current_state = GAME_RUNNING
                             self.background_start_x = 2000
                             self.speed_scale += .1
+                            self.level_enemy_index = 0
 
         # Adding enemies from spawners
         for spawner in self.spawner_list:
